@@ -5,15 +5,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.example.composition.R
 import com.example.composition.databinding.FragmentGameFinishedBinding
 import com.example.composition.domain.entity.GameResult
-import com.example.composition.presentation.util.ViewUtils
-import kotlin.system.exitProcess
 
 class GameFinishedFragment : Fragment() {
+    private val args by navArgs<GameFinishedFragmentArgs>()
     private lateinit var gameResult: GameResult
     private var _binding: FragmentGameFinishedBinding? = null
     private val binding: FragmentGameFinishedBinding
@@ -21,7 +21,7 @@ class GameFinishedFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        parseArguments()
+        gameResult = args.gameResult
     }
 
     override fun onCreateView(
@@ -36,15 +36,8 @@ class GameFinishedFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         outputRes()
         binding.buttonRetry.setOnClickListener {
-            launchChooseFragment()
+            retryGame()
         }
-        requireActivity()
-            .onBackPressedDispatcher
-            .addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    retryGame()
-                }
-            })
     }
 
     override fun onDestroyView() {
@@ -52,22 +45,8 @@ class GameFinishedFragment : Fragment() {
         _binding = null
     }
 
-    private fun parseArguments() {
-        try {
-            val res = requireArguments()
-            gameResult = ViewUtils.getParcelable<GameResult>(requireArguments(), KEY_GAME_RESULT)
-                ?: throw RuntimeException("Arguments for key ${KEY_GAME_RESULT} is null")
-        } catch (e: Exception) {
-            e.printStackTrace()
-            exitProcess(1)
-        }
-    }
-
-    private fun launchChooseFragment() {
-        requireActivity().supportFragmentManager.beginTransaction()
-            .replace(R.id.main_container, ChooseLevelFragment.newInstance())
-            .addToBackStack(null)
-            .commit()
+    private fun retryGame() {
+        findNavController().popBackStack()
     }
 
     private fun outputRes() {
@@ -109,20 +88,4 @@ class GameFinishedFragment : Fragment() {
         }
     }
 
-    private fun retryGame() {
-        requireActivity().supportFragmentManager.popBackStack(GameFragment.RETRY_GAME, 1)
-
-    }
-
-    companion object {
-
-        const val KEY_GAME_RESULT = "gameResult"
-        fun newInstance(gameResult: GameResult): GameFinishedFragment {
-            return GameFinishedFragment().apply {
-                arguments = Bundle().apply {
-                    putParcelable(KEY_GAME_RESULT, gameResult)
-                }
-            }
-        }
-    }
 }

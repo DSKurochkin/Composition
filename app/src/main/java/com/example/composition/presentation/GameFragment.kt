@@ -9,13 +9,14 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import com.example.composition.R
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.example.composition.databinding.FragmentGameBinding
 import com.example.composition.domain.entity.GameResult
 import com.example.composition.domain.entity.Level
-import com.example.composition.presentation.util.ViewUtils
 
 class GameFragment : Fragment() {
+    private val args by navArgs<GameFragmentArgs>()
     private lateinit var level: Level
     private lateinit var viewModel: GameFragmentViewModel
     private var _binding: FragmentGameBinding? = null
@@ -24,7 +25,7 @@ class GameFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        parseArguments()
+        level = args.level
     }
 
     override fun onCreateView(
@@ -50,21 +51,8 @@ class GameFragment : Fragment() {
     }
 
     private fun launchGameFinishedFragment(gameResult: GameResult) {
-        requireActivity()
-            .supportFragmentManager
-            .beginTransaction()
-            .replace(R.id.main_container, GameFinishedFragment.newInstance(gameResult))
-            .addToBackStack(null)
-            .commit()
-    }
-
-    private fun parseArguments() {
-        try {
-            level = ViewUtils.getParcelable<Level>(requireArguments(), KEY_LEVEL)
-                ?: throw RuntimeException("Arguments for key $KEY_LEVEL is null")
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        findNavController()
+            .navigate(GameFragmentDirections.actionGameFragmentToGameFinishedFragment(gameResult))
     }
 
     private fun setClickListeners() {
@@ -135,18 +123,5 @@ class GameFragment : Fragment() {
             android.R.color.holo_red_light
         }
         return ContextCompat.getColor(requireContext(), colorResId)
-    }
-
-    companion object {
-
-        const val KEY_LEVEL = "level"
-        const val RETRY_GAME = "GameFragment"
-        fun newInstance(level: Level): GameFragment {
-            return GameFragment().apply {
-                arguments = Bundle().apply {
-                    putSerializable(KEY_LEVEL, level)
-                }
-            }
-        }
     }
 }
