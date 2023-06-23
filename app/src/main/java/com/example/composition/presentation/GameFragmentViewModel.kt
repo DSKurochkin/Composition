@@ -24,7 +24,6 @@ class GameFragmentViewModel(application: Application) : AndroidViewModel(applica
     private var countQuestion = 0
     private val context = application
 
-
     private val _gameResult = MutableLiveData<GameResult>()
     val gameResult: LiveData<GameResult>
         get() = _gameResult
@@ -59,6 +58,7 @@ class GameFragmentViewModel(application: Application) : AndroidViewModel(applica
 
     fun startGame(level: Level) {
         gameSettings = getGameSettingsUseCase(level)
+        _minPercent.value = gameSettings.minPercentOfRightAnswer
         launchTimer(gameSettings.gameTimeInSeconds.toLong() * 1000)
         oneIter()
     }
