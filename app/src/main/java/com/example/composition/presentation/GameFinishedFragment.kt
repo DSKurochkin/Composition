@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.example.composition.R
 import com.example.composition.databinding.FragmentGameFinishedBinding
 import com.example.composition.domain.entity.GameResult
 
@@ -34,7 +33,7 @@ class GameFinishedFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        outputRes()
+        binding()
         binding.buttonRetry.setOnClickListener {
             retryGame()
         }
@@ -49,43 +48,9 @@ class GameFinishedFragment : Fragment() {
         findNavController().popBackStack()
     }
 
-    private fun outputRes() {
+    private fun binding() {
+        binding.gameResult = gameResult
 
-        binding.emojiResult.setImageResource(isWin())
-
-        binding.tvRequiredAnswers.text = String
-            .format(
-                resources.getString(R.string.required_score),
-                gameResult.gameSettings.minCountOfRightAnswer
-            )
-
-        binding.tvScoreAnswers.text = String
-            .format(
-                resources.getString(R.string.score_answers),
-                gameResult.countOfRightAnswer
-            )
-
-        binding.tvRequiredPercentage.text = String
-            .format(
-                resources.getString(R.string.required_percentage),
-                gameResult.gameSettings.minPercentOfRightAnswer
-            )
-
-
-        binding.tvScorePercentage.text = String
-            .format(
-                resources.getString(R.string.score_percentage),
-                ((gameResult.countOfRightAnswer / gameResult.countQuestion.toDouble()) * 100).toInt()
-            )
-
-    }
-
-    private fun isWin(): Int {
-        return if (gameResult.isWinner) {
-            R.drawable.ic_smile
-        } else {
-            R.drawable.ic_sad
-        }
     }
 
 }
